@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <title>ilo pi sitelen kiwen</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        #sk_output {
+            border-spacing: 1px;
+        }
+        #sk_output tr {
+            height: 30px;
+            margin:0;
+            padding:0;
+        }
+        #sk_output td {
+            border: 1px solid rgb(6, 1, 28);
+            border-radius:8px;
+        }
+        #sk_output td:nth-child(even) {
+            position: relative;
+            top:var(--sk-offset);
+        }
+        .sk_loje {
+            background-color: var(--loje);
+        }
+        .sk_jelo {
+            background-color: var(--jelo);
+        }
+        .sk_laso {
+            background-color: var(--laso);
+        }
+        .sk_pimeja {
+            background-color: var(--pimeja);
+        }
+        .sk_walo {
+            background-color: var(--walo);
+        }
+        .sk_down {
+            position:relative;
+            top:15px;
+        }
+    </style>
+    <body>
+        <div>
+            <label for="sk_text">nimi</label>
+            <input type="text" id="sk_text" onchange="updateOutput()" value="sitelen kiwen">
+            <label for="sk_num">suli</label>
+            <input type="number" id="sk_num" min="3" onchange="updateOutput()" value="4">
+            <label for="sk_offset">nasin ante</label>
+            <input type="checkbox" id="sk_offset" onchange="updateOutput()" value="15px"><br><br>
+            <label for="sk_loje">kule loje</label>
+            <input type="color" id="sk_loje" onchange="updateColors()" value="#f52960">
+            <label for="sk_jelo">kule jelo</label>
+            <input type="color" id="sk_jelo" onchange="updateColors()" value="#f6bb24">
+            <label for="sk_laso">kule laso</label>
+            <input type="color" id="sk_laso" onchange="updateColors()" value="#14c3b1">
+            <label for="sk_pimeja">kule pimeja</label>
+            <input type="color" id="sk_pimeja" onchange="updateColors()" value="#28262b">
+            <label for="sk_walo">kule walo</label>
+            <input type="color" id="sk_walo" onchange="updateColors()" value="#f1eeeb"><br><br>
+            <table id="sk_output"></table>
+        </div>
+        <script type="text/javascript">
+            let colors = {"a":[0, 0], "e":[1, 4], "i":[1, 1], "o":[2, 2], "u":[2, 4], "j":[4, 1], "k":[2, 0], "l":[1, 2], "m":[4, 3], "n":[3, 3], "p":[0, 1], "s":[1, 0], "t":[0, 2], "w":[4, 2], "an":[3, 0],  "en":[1, 3], "in":[3, 1], "on":[3, 2], "un":[2, 3], " ":[4, 4]}
+            let classes = ["sk_loje", "sk_jelo", "sk_laso", "sk_pimeja", "sk_walo"]
+            let p = 1;
+            function moveRight(self) {
+                let sib = self.srcElement.parentElement.children[Array.from(self.srcElement.parentElement.children).indexOf(self.srcElement) + p];
+                sib.classList = self.srcElement.classList;
+                updateArrows(self.srcElement.parentElement);
+            }
+            function moveLeft(self) {
+                let sib = self.srcElement.parentElement.children[Array.from(self.srcElement.parentElement.children).indexOf(self.srcElement) - p];
+                sib.classList = self.srcElement.classList;
+                updateArrows(self.srcElement.parentElement);
+            }
+            function updateArrows(row) {
+                for(let i = 0; i < row.children.length; i ++) {
+                    let ppcel = i > p  ? row.children[i-2*p] : null;
+                    let pcel = i > 0 ? row.children[i-p] : null;
+                    let cel = row.children[i];
+                    let ncel = i < row.children.length-p ? row.children[i+p] : null;
+                    let nncel = i < row.children.length-2*p ? row.children[i+2*p] : null;
+                    cel.onclick = "";
+                    cel.style = "";
+                    if(nncel != null && cel.classList[1] != ncel.classList[1] && ncel.classList[1] == nncel.classList[1]) {
+                        cel.onclick = moveRight;
+                        cel.style = "cursor: pointer;";
+                    }
+                    if(ppcel != null && cel.classList[1] != pcel.classList[1] && pcel.classList[1] == ppcel.classList[1]) {
+                        cel.onclick = moveLeft;
+                        cel.style = "cursor: pointer;";
+                    }
+                }
+            }
+            function updateColors() {
+                var r = document.querySelector(':root');
+                r.style.setProperty('--loje', document.getElementById("sk_loje").value);
+                r.style.setProperty('--jelo', document.getElementById("sk_jelo").value);
+                r.style.setProperty('--laso', document.getElementById("sk_laso").value);
+                r.style.setProperty('--pimeja', document.getElementById("sk_pimeja").value);
+                r.style.setProperty('--walo', document.getElementById("sk_walo").value);
+            }
+            function whiteLine() {
+                let width = document.getElementById("sk_num").value;
+                let newRow = document.createElement("tr");
+                newRow.classList.add("sk_row");
+                for(let i = 0; i < width; i ++) {
+                    let c = document.createElement("td");
+                    c.classList.add("sk_color");
+                    c.classList.add(classes[colors[" "][0]]);
+                    newRow.appendChild(c);
+                }
+                updateArrows(newRow);
+                return(newRow);
+            }
+            function updateOutput() {
+                updateColors();
+                var r = document.querySelector(':root');
+                r.style.setProperty('--sk-offset', document.getElementById("sk_offset").checked? "15px" : "0");
+                p = document.getElementById("sk_offset").checked?2:1;
+                let outDiv = document.getElementById("sk_output");
+                outDiv.innerHTML = "";
+
+                let lines = Array.from(document.getElementById("sk_text").value.toLowerCase());
+                for(let i = 0; i < lines.length; i ++) {
+                    if (colors[lines[i]] == undefined) {
+                        lines[i] = " ";
+                    }
+                    if (p == 2 && lines[i] == " " && lines[i-1] != " ") {
+                        lines.splice(i, 0, " ");
+                    }
+                    if (i < lines.length - 1) {
+                        if (lines[i+1] == "n" && "aeiou".includes(lines[i])) {
+                            if (i < lines.length - 2) {
+                                if (!"aeiou".includes(lines[i+2])) {
+                                    lines[i] += lines[i+1];
+                                    lines.splice(i+1, 1);
+                                }
+                            } else {
+                                lines[i] += lines[i+1];
+                                lines.splice(i+1, 1);
+                            }
+                        }
+                    }
+                }
+                
+                let width = document.getElementById("sk_num").value;
+
+                if (p == 2) {
+                    for(let j = 0; j < 4; j ++) {
+                        outDiv.appendChild(whiteLine());
+                    }
+                }
+                for(let char of lines) {
+                    let newRow = document.createElement("tr");
+                    newRow.classList.add("sk_row");
+                    outW = Math.max(Math.round(width*0.25), 1);
+                    for(let i = 0; i < outW; i ++) {
+                        let c1 = document.createElement("td");
+                        c1.classList.add("sk_color");
+                        c1.classList.add(classes[colors[char][0]]);
+                        newRow.appendChild(c1);
+                    }
+                    for(let i = 0; i < width-(outW*2); i ++) {
+                        let c2 = document.createElement("td");
+                        c2.classList.add("sk_color");
+                        c2.classList.add(classes[colors[char][1]]);
+                        newRow.appendChild(c2);
+                    }
+                    for(let i = 0; i < outW; i ++) {
+                        let c3 = document.createElement("td");
+                        c3.classList.add("sk_color");
+                        c3.classList.add(classes[colors[char][0]]);
+                        newRow.appendChild(c3);
+                    }
+                    updateArrows(newRow);
+                    outDiv.appendChild(newRow);
+                }
+                if (p == 2) {
+                    for(let j = 0; j < 4; j ++) {
+                        outDiv.appendChild(whiteLine());
+                    }
+                    for(let i = 0; i < outDiv.children.length-1; i ++) {
+                        let row = outDiv.children[i];
+                        let nrow = outDiv.children[i+1];
+                        for(let j = 0; j < row.children.length; j += 2) {
+                            console.log(nrow.children[0]);
+                            if(j < row.children.length - 1) {
+                                row.insertBefore(nrow.children[0], row.children[j+1]);
+                            } else {
+                                row.appendChild(nrow.children[0]);
+                            }
+                        }
+                        outDiv.removeChild(nrow);
+                        updateArrows(row);
+                    }
+                }
+                outDiv.style = "width:"+(width*30*p)+"px;";
+            }
+            updateOutput();
+        </script>
+    </body>
+</html>
