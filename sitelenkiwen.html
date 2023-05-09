@@ -122,24 +122,27 @@
                 let outDiv = document.getElementById("sk_output");
                 outDiv.innerHTML = "";
 
-                let lines = Array.from(document.getElementById("sk_text").value.toLowerCase());
-                for(let i = 0; i < lines.length; i ++) {
-                    if (colors[lines[i]] == undefined) {
-                        lines[i] = " ";
+                let text = document.getElementById("sk_text").value.toLowerCase();
+                let lines = [];
+                for(let i = 0; i < text.length; i ++) {
+                    if (colors[text[i]] == undefined || text[i] == " ") {
+                        lines.push(" ");
+                        if (p == 2) {
+                            lines.push(" ");
+                        }
+                    } else {
+                        lines.push(text[i]);
                     }
-                    if (p == 2 && lines[i] == " " && lines[i-1] != " ") {
-                        lines.splice(i, 0, " ");
-                    }
-                    if (i < lines.length - 1) {
-                        if (lines[i+1] == "n" && "aeiou".includes(lines[i])) {
-                            if (i < lines.length - 2) {
-                                if (!"aeiou".includes(lines[i+2])) {
-                                    lines[i] += lines[i+1];
-                                    lines.splice(i+1, 1);
+                    if (i < text.length - 1) {
+                        if (text[i+1] == "n" && "aeiou".includes(text[i])) {
+                            if (i < text.length - 2) {
+                                if (!"aeiou".includes(text[i+2])) {
+                                    lines[lines.length-1] += "n";
+                                    i += 1;
                                 }
                             } else {
-                                lines[i] += lines[i+1];
-                                lines.splice(i+1, 1);
+                                lines[lines.length-1] += "n";
+                                i += 1;
                             }
                         }
                     }
@@ -185,7 +188,7 @@
                         let row = outDiv.children[i];
                         let nrow = outDiv.children[i+1];
                         for(let j = 0; j < row.children.length; j += 2) {
-                            console.log(nrow.children[0]);
+                            //console.log(nrow.children[0]);
                             if(j < row.children.length - 1) {
                                 row.insertBefore(nrow.children[0], row.children[j+1]);
                             } else {
